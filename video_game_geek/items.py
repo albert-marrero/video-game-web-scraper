@@ -75,6 +75,7 @@ class GameItem(scrapy.Item):
         output_processor=TakeFirst(),
     )
     rankings = scrapy.Field()
+    versions = scrapy.Field()
     scraped_at = scrapy.Field(
         serializer=float
     )

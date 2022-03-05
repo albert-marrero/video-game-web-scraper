@@ -45,6 +45,7 @@ class GamesSpider(scrapy.Spider):
             url = self.build_api_url(
                 path="xmlapi2/thing",
                 stats=1,
+                versions=1,
                 id=game_ids,
             )
             self.logger.info(f'API URL Created: {url}')
@@ -163,5 +164,15 @@ class GamesSpider(scrapy.Spider):
                     'bayes_average': is_float(rank.xpath('@bayesaverage').get())
                 }
                 loader.add_value('rankings', rankings)
+
+            for item in game.xpath('versions/item[@type = "videogameversion"]'):
+                versions = {
+                    'release_date': item.xpath('releasedate/@value').get(),
+                    'platform': item.xpath('link[@type = "videogameplatform"]/@value').get(),
+                    'publisher': item.xpath('link[@type = "videogamepublisher"]/@value').get(),
+                    'developer': item.xpath('link[@type = "videogamedeveloper"]/@value').get(),
+                    'media': item.xpath('link[@type = "videogamemedia"]/@value').get(),
+                }
+                loader.add_value('versions', versions)
 
             yield loader.load_item()
