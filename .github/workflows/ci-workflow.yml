@@ -23,7 +23,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        python-version: [3.9, 9.10]
+        python-version: [3.9, 3.10]
 
     steps:
       - name: Set up Python ${{ matrix.python-version }}
