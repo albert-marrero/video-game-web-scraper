@@ -23,7 +23,7 @@ jobs:
     needs: build
     strategy:
       matrix:
-        python-version: [3.9]
+        python-version: ["3.9", "3.10"]
 
     steps:
       - name: Set up Python ${{ matrix.python-version }}
@@ -39,4 +39,4 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
       - name: Test
         run: |
-          scrapy check
+          scrapy crawl vgg-hotitems
