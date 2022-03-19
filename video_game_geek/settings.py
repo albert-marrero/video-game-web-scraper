@@ -66,6 +66,7 @@ CONCURRENT_REQUESTS_PER_DOMAIN = 16
 ITEM_PIPELINES = {
     'video_game_geek.pipelines.DuplicatesPipeline': 1,
     'video_game_geek.pipelines.TimestampPipeline': 2,
+    
 }
 
 # Enable and configure the AutoThrottle extension (disabled by default)
