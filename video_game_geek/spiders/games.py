@@ -1,13 +1,14 @@
 import scrapy
+from itertools import islice
 from scrapy.loader import ItemLoader
 from scrapy.utils.misc import arg_to_iter
 from urllib.parse import urlunsplit, urlencode
 from video_game_geek.items import GameItem
 
-def batch(iterable, n=1):
+def chucks(iterable, size=1):
     l = len(iterable)
-    for ndx in range(0, l, n):
-        yield iterable[ndx : min(ndx + n, l)]
+    for item in range(0, l, size):
+        yield iterable[item : min(item + size, l)]
 
 def get_id_value(items, separator=":"):
     for item in arg_to_iter(items):
@@ -52,6 +53,36 @@ class GamesSpider(scrapy.Spider):
             request = scrapy.Request(url, callback=self.parse_game)
             yield request
 
+    def __init__(self, category=None, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.game_ids_seen = set()
+        self.game_chucks = list()
+        self.api_urls = list()
+
+    def game_batches(self):
+        self.logger.debug('Start Batch Games Function')
+        # convert set to list
+        data = list(self.game_ids_seen)
+        print(data)
+        for item in chucks(data, 10):
+            self.game_chucks.append(item)
+        self.logger.info(f'Total Game IDs Chucks: {len(self.game_chucks)}')
+
+    def build_game_api_urls(self):
+        self.logger.debug('Start Building Game API URLs Function')
+        for chuck in self.game_chucks:
+            games = ",".join(map(str, chuck))
+            url = self.build_api_url(
+                path="xmlapi2/thing",
+                stats=1,
+                versions=1,
+                id=games,
+            )
+            self.api_urls.append(url)
+            self.logger.debug(f'API URL Created: {url}')
+        self.logger.info(f'Total API URLs: {len(self.api_urls)}')
+
     def parse(self, response):
         """
         @url https://videogamegeek.com/browse/boardgame/
@@ -59,17 +90,32 @@ class GamesSpider(scrapy.Spider):
         @returns requests 0 11
         """
 
-        self.logger.info(f'Parse function called on {response.url}')
-        game_ids = response.xpath(
+        self.logger.debug(f'Parse Function Called on {response.url}')
+        # get all game ids from page
+        game_ids_extracted = response.xpath(
             './/td[contains(@class, "collection_object")]//a/@href'
         ).re(r"^/\w+/(\d+).*$")
-        self.logger.debug(f'List of Game IDs extracted: {game_ids}')
-        
-        yield from self.build_game_requests(game_ids)
+        self.logger.info(f'Total Game IDs Extracted: {len(game_ids_extracted)}')
+        # print(response.status)
 
+        self.game_ids_seen.update(game_ids_extracted)
+        self.logger.info(f'Total Game IDs Seen: {len(self.game_ids_seen)}')
+        
+        # yield from self.build_game_requests(game_ids)
+
+        # not last page, figure out next page
         next_page = response.xpath('//a[@title = "next page"]/@href').get()
+        next_page = None
         if next_page is not None:
             yield response.follow(next_page, callback=self.parse)
+    
+        # last page
+        if next_page is None:
+            self.game_batches()
+            self.build_game_api_urls()
+            for url in self.api_urls:
+                request = scrapy.Request(url, callback=self.parse_game)
+                yield request
 
     def parse_game(self, response):
         """
