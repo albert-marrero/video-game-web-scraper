@@ -50,6 +50,22 @@ See the [Spiders Contracts][7] for more instructions on how to create tests for 
 scrapy check
 ```
 
+### Running Scripts via docker
+In Windows Command Line (cmd), you can mount the current directory like so:
+docker run --rm -it -v %cd%:/usr/src/project gcc:4.9
+
+In PowerShell, you use ${PWD}, which gives you the current directory:
+docker run -ti --rm -v ${PWD}\data:/data -v ${PWD}\logs:/logs script-demo scripts/video-game-geek.sh game
+docker run -ti --rm -v ${PWD}\data:/data -v ${PWD}\logs:/logs script-demo scripts/video-game-geek.sh hot-item
+
+On Linux:
+docker run --rm -it -v $(pwd):/usr/src/project gcc:4.9
+
+Cross Platform
+The following options will work on both PowerShell and on Linux (at least Ubuntu):
+docker run --rm -it -v ${PWD}:/usr/src/project gcc:4.9
+docker run --rm -it -v $(pwd):/usr/src/project gcc:4.9
+
 ### Scrapy Documentation
 
 See the [Scrapy Documentation][8] for more instructions on how to create and modify spiders.
@@ -61,6 +77,8 @@ Please make sure to update tests as appropriate.
 
 ## Support
 If you enjoy this repository, please [star][4] this repository. By starring a repository, it shows appreciation to the repository maintainer for their work. Many of GitHub's repository rankings depend on the number of stars a repository has.
+
+
 
 ## License
 [MIT][5]

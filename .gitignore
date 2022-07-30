@@ -127,3 +127,7 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Video Game Web Scraper Stuff
+data/
+logs/
