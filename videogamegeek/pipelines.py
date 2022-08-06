@@ -5,34 +5,36 @@
 
 
 # useful for handling different item types with a single interface
-import datetime
-from datetime import timezone
 from itemadapter import ItemAdapter
 from scrapy.exceptions import DropItem
 
-# Getting the current date and time
-dt = datetime.datetime.now(timezone.utc)
-utc_time = dt.replace(tzinfo=timezone.utc)
-utc_timestamp = utc_time.timestamp()
+from utils import now
+
+timestamp = now()
+
+
+class VideoGameGeekPipeline:
+    def process_item(self, item, spider):
+        return item
+
 
 class DuplicatesPipeline:
-
     def __init__(self):
         self.ids_seen = set()
 
     def process_item(self, item, spider):
-        spider.logger.debug(f'Duplicates pipeline called on {item!r}')
+        spider.logger.debug(f"Duplicates pipeline called on {item!r}")
         adapter = ItemAdapter(item)
-        if adapter['id'] in self.ids_seen:
+        if adapter["id"] in self.ids_seen:
             raise DropItem(f"Duplicate item found: {item!r}")
         else:
-            self.ids_seen.add(adapter['id'])
+            self.ids_seen.add(adapter["id"])
             return item
 
-class TimestampPipeline:
 
+class TimestampPipeline:
     def process_item(self, item, spider):
-        spider.logger.debug(f'Timestamp pipeline called on {item!r}')
+        spider.logger.debug(f"Timestamp pipeline called on {item!r}")
         adapter = ItemAdapter(item)
-        adapter["scraped_at"] = utc_timestamp
+        adapter["scraped_at"] = timestamp
         return item
