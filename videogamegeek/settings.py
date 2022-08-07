@@ -45,16 +45,16 @@ ROBOTSTXT_PARSER = "scrapy.robotstxt.PythonRobotParser"
 
 # Enable or disable spider middlewares
 # See https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-SPIDER_MIDDLEWARES = {
-    "videogamegeek.middlewares.WaybackMachineMiddleware": 100,
-    "videogamegeek.middlewares.VideoGameGeekSpiderMiddleware": 543,
-}
+# SPIDER_MIDDLEWARES = {
+#     "videogamegeek.middlewares.VideoGameGeekSpiderMiddleware": 543,
+# }
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
-# DOWNLOADER_MIDDLEWARES = {
-#    'video_game_geek.middlewares.VideoGameGeekDownloaderMiddleware': 543,
-# }
+DOWNLOADER_MIDDLEWARES = {
+    "videogamegeek.middlewares.WaybackMachineDownloaderMiddleware": 100,
+    "videogamegeek.middlewares.VideoGameGeekDownloaderMiddleware": 543,
+}
 
 # Enable or disable extensions
 # See https://docs.scrapy.org/en/latest/topics/extensions.html
